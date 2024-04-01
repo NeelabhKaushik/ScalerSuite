@@ -3,15 +3,14 @@
 import { Product } from "@/types";
 import Image from "next/image";
 import React from "react";
-import IconButton from "./icon-button";
-import { Expand, HotelIcon, ShoppingBasket, ShoppingCart } from "lucide-react";
-import Currency from "./currency";
+import IconButton from "../ui/icon-button";
+import { Expand, HotelIcon } from "lucide-react";
+import Currency from "../ui/currency";
 
 interface ProductCard {
   data: Product;
 }
 const ProductCard: React.FC<ProductCard> = ({ data }) => {
-  console.log(typeof data.price);
   return (
     <div className="bg-white group cursor-pointer rounded-xl border p-3 space-y-4">
       <div className="aspect-square rounded-xl bg-gray-100 relative">

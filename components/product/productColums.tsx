@@ -7,6 +7,7 @@ export type ProductColumn = {
   id: string;
   name: string;
   isArchived: boolean;
+  category: string;
   price: string;
   bookings?: string; // Using the Booking interface here
   createdAt?: string;
