@@ -7,8 +7,6 @@ const HomePage = async () => {
   
   const products = await db.product.findMany({});
 
-  console.log(products)
-
   return (
     <Container>
       <div className="space-y-10 pb-10">

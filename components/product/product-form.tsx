@@ -90,7 +90,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   });
 
   const onSubmit = async (data: ProductFormValues) => {
-    console.log(data);
     try {
       setLoading(true);
       if (initialData) {
@@ -175,23 +174,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
             )}
           />
           <div className="md:grid md:grid-cols-3 gap-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Room name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={loading}
+                        placeholder="Room name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <FormField
               control={form.control}
               name="type"

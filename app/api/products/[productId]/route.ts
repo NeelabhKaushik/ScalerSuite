@@ -1,49 +1,33 @@
 import prismadb from "@/lib/prismadb";
-import { NextResponse } from "next/server";
 
-function extractRoomNumbers(roomNumbersString: string) {
-  // Split the string by commas and trim each substring
-  const roomNumbersArray = roomNumbersString
-    .split(",")
-    .map((roomNumber) => roomNumber.trim());
-
-  // Parse each substring into an integer
-  const roomNumbersInt = roomNumbersArray.map((roomNumber) =>
-    parseInt(roomNumber, 10)
-  );
-
-  return roomNumbersInt;
-}
-
-export async function POST(req: Request) {
+export async function DELETE(req: Request) {
   try {
-    const body = await req.json();
-    const { name, price, isArchived, roomNumber, type, images } = body;
-    // if(!name){
-    //     return new NextResponse({status: 400, body: {message: "Name is required"}});
-    // }
+    const url = new URL(req.url);
+    const pathnameParts = url.pathname.split("/");
+    const productId = pathnameParts[pathnameParts.length - 1];
 
-    const roomNumbers = extractRoomNumbers(roomNumber);
-    const typeExist = await prismadb.product.findMany({
+    // Assuming prismadb is your database connection
+    const roomDelete = await prismadb.product.delete({
       where: {
-        type: type,
+        id: productId,
       },
     });
-
-    console.log(roomNumbers);
-    const newProduct = await prismadb.product.create({
-      data: {
-        name: name,
-        price: price,
-        isArchived: isArchived,
-        roomNumber: roomNumbers,
-        type: type,
-        images: images,
-      },
-    });
-
-    console.log(newProduct);
+    if (roomDelete) {
+      return new Response(
+        JSON.stringify({ success: 1, message: "Product deleted successfully" }),
+        { status: 200 }
+      );
+    } else {
+      return new Response(
+        JSON.stringify({ success: 0, error: "Failed to delete product" }),
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return new Response(
+      JSON.stringify({ success: 0, error: "Internal Server Error" }),
+      { status: 500 }
+    );
   }
 }

@@ -4,8 +4,8 @@ import Image from "next/image";
 import React from "react";
 
 interface ImageType {
-  id: string;
   url: string;
+  alt: string;
 }
 
 interface GalleryProps {

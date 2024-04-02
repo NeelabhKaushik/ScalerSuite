@@ -22,13 +22,13 @@ const MainNav = () => {
         Admin
       </Link>
       <Link
-        href="/orders"
+        href="/bookings"
         className={cn(
           "text-sm font-medium transition-colors hover:text-black",
           isOrderActive ? "text-black" : "text-neutral-500"
         )}
       >
-        Orders
+        Bookings
       </Link>
     </nav>
   );

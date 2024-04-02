@@ -32,8 +32,6 @@ const page = async () => {
     type: product.type,
     images: [] || product.images.map((image: string) => ({ url: image })), // Adjusted images property
   }));
-
-  console.log(formattedProducts);
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">

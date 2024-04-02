@@ -6,9 +6,8 @@ import React from "react";
 import GalleryTab from "./gallery-tab";
 
 interface ImageType {
-  id: string;
   url: string;
-  createdAt: string;
+  alt: string;
 }
 interface GalleryProps {
   images: ImageType[];
@@ -19,14 +18,14 @@ const Gallery: React.FC<GalleryProps> = ({ images }) => {
       <div className="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
         <Tab.List className="grid grid-cols-4 gap-6">
           {images.map((image) => (
-            <GalleryTab key="image.id" images={image} />
+            <GalleryTab key={image.url} images={image} />
           ))}
         </Tab.List>
       </div>
 
       <Tab.Panels className={"aspect-square w-full"}>
         {images.map((image) => (
-          <Tab.Panel key={image.id}>
+          <Tab.Panel key={image.url}>
             <div className="aspect-square relative h-full w-full sm:rounded-lg overflow-hidden">
               <Image
                 fill

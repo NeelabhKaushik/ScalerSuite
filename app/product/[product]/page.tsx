@@ -1,14 +1,20 @@
 import Container from "@/components/navbar/container";
 import Gallery from "@/components/gallery/gallery";
-import Productlist from "@/components/product/productlist";
 import { db } from "@/lib/db";
 import React from "react";
 import Info from "@/components/gallery/info";
+// import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 
 interface ProductPageProps {
   params: {
     productId: string;
   };
+}
+
+interface ImageType {
+  url: string;
+  alt: string;
 }
 const ProductPage: React.FC<ProductPageProps> = async ({ params }) => {
   const product = await db.product.findFirst({
@@ -17,33 +23,35 @@ const ProductPage: React.FC<ProductPageProps> = async ({ params }) => {
     },
   });
 
-    const suggestedProducts = await db.product.findMany({
-      where: {
-        type: product?.type,
-      },
-    });
+  const suggestedProducts = await db.product.findFirst({
+    where: {
+      type: product?.type,
+    },
+  });
+  const imageObjects: ImageType[] = product
+    ? product?.images.map((imageUrl) => ({
+        url: imageUrl,
+        alt: "Image Alt Text", // Provide appropriate alt text here
+      }))
+    : [];
   return (
     <div className="bg-white">
       <Container>
         <div className="px-4 py-10 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
             {/* Gallery  */}
-            {product && (
-              <Gallery images={product.images} />
-            )}
+            {product && <Gallery images={imageObjects} />}
 
             <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
               {/* Info */}
-              {product && (
-                <Info data={product} />
-              )}
+              {product && <Info data={product} />}
             </div>
           </div>
           <hr className="my-10" />
-          <Productlist
+          {/* <Productlist
             title="Similar Rooms"
             items={suggestedProducts}
-          ></Productlist>
+          ></Productlist> */}
         </div>
       </Container>
     </div>

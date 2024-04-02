@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       });
     }
 
+    const imageURLs = images.map((image: { url: string }) => image.url);
     const roomNumbersArray = extractRoomNumbers(roomNumber);
     // Check if a product of this type already exists
     const existingProduct = await prismadb.product.findFirst({
@@ -42,7 +43,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create new product
     const newProduct = await prismadb.product.create({
       data: {
         name: name,
@@ -50,14 +50,11 @@ export async function POST(req: Request) {
         isArchived: isArchived,
         roomNumber: roomNumbersArray,
         type: type,
+        images: imageURLs,
       },
     });
 
-    console.log("sex");
-    console.log(req);
-    console.log("-----------------");
 
-    console.log(newProduct);
     // Return success response
     return NextResponse.json(newProduct);
   } catch (error: any) {
