@@ -13,48 +13,55 @@ datasource db {
   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
-
 model Product {
-  id        String    @id @default(uuid())
-  name      String
-  price     Decimal
-  category  String
-  isArchived Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  bookings  Booking[]
-  images    Image[]
+  id           String    @id @default(uuid())
+  name         String
+  price        Int
+  type         String
+  roomNumber   Int[]
+  isArchived   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  bookings     Booking[]
+  images       String[]
 }
 
-model Image {
-  id String @id @default(uuid())
-  productId String
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  url String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// model Image {
+//   id           String    @id @default(uuid())
+//   productId    String
+//   product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   url          String
+//   description  String?
+//   size         Int
+//   type         String
+//   createdAt    DateTime  @default(now())
+//   updatedAt    DateTime  @updatedAt
 
-  @@index([productId])
-}
+//   @@index([productId])
+// }
 
 model Booking {
-  id         String   @id @default(uuid())
-  productId  String
-  product    Product  @relation(fields: [productId], references: [id])
-  quantity   Int
-  createdAt  DateTime @default(now())
-  bookedFrom DateTime
-  bookedTo   DateTime
-  userId     String
-  user       User?   @relation(fields: [userId], references: [userId])
-
+  id           String     @id @default(uuid())
+  productId    String
+  product      Product    @relation(fields: [productId], references: [id])
+  roomNumber   Int
+  createdAt    DateTime   @default(now())
+  bookedFrom   DateTime
+  bookedTo     DateTime
+  userId       String
+  user         User?      @relation(fields: [userId], references: [userId])
+  isCancelled  Boolean    @default(false)
+  deletedAt    DateTime?
 
   @@index([userId])
   @@index([productId])
 }
 
 model User {
-  userId       String   @id @default(uuid())
-  name     String
-  email    String
-  bookings Booking[]
+  userId       String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  bookings     Booking[]
+
+  @@index([name])
 }

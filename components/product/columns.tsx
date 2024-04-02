@@ -10,6 +10,7 @@ interface Booking {
   createdAt: Date;
   bookedFrom: Date;
   bookedTo: Date;
+  roomNumber: number;
   userId: string;
   user?: User;
 }
@@ -18,10 +19,17 @@ export interface ProductColumn {
   id: string;
   name: string;
   isArchived: boolean;
-  category: string;
+  roomNumber: number[];
+  type: string;
   price: string;
-  bookings?: string; // Using the Booking interface here
-  createdAt?: string;
+  bookings?: Booking[]; // Using the Booking interface here
+  createdAt?: Date;
+  images: string[];
+}
+interface Image {
+  id: string;
+  url: string;
+  createdAt: Date;
 }
 interface User {
   userId: string;
@@ -49,15 +57,20 @@ export const columns: ColumnDef<ProductColumn>[] = [
     header: "Created At",
   },
   {
-    accessorKey: "category",
-    header: "Category",
+    accessorKey: "roomNumber",
+    header: "Room Numbers",
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
   },
   {
     accessorKey: "isArchived",
-    header: "Archived",
+    header: "On Maintainence",
   },
   {
     id: "actions",
     cell: ({ row }) => <CellAction data={row.original} />,
   },
 ];
+  

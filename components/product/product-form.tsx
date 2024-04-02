@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { Trash } from "lucide-react";
-import { Image, Product } from "@prisma/client";
+import { Product } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
@@ -36,9 +36,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   name: z.string().min(1),
-  images: z.object({ url: z.string() }).array(),
+  images: z.array(z.object({ url: z.string() })),
   price: z.coerce.number().min(1),
   isArchived: z.boolean().default(false).optional(),
+  roomNumber: z.string().min(1),
+  type: z.string().min(1),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -46,7 +48,7 @@ type ProductFormValues = z.infer<typeof formSchema>;
 interface ProductFormProps {
   initialData:
     | (Product & {
-        images: Image[];
+        images: string[];
       })
     | null;
 }
@@ -67,12 +69,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
     ? {
         ...initialData,
         price: parseFloat(String(initialData?.price)),
+        roomNumber: initialData.roomNumber.join(","), // Assuming roomNumber is an array
+        images: initialData.images.map((url: string) => ({ url })),
       }
     : {
         name: "",
         images: [],
         price: 0,
         categoryId: "",
+        roomNumber: "",
         colorId: "",
         sizeId: "",
         isFeatured: false,
@@ -85,18 +90,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   });
 
   const onSubmit = async (data: ProductFormValues) => {
+    console.log(data);
     try {
       setLoading(true);
       if (initialData) {
-        await axios.patch(
-          `/api/${params.storeId}/products/${params.productId}`,
-          data
-        );
+        await axios.patch(`/api/products/${params.productId}`, data);
       } else {
-        await axios.post(`/api/${params.storeId}/products`, data);
+        await axios.post(`/api/products`, data);
       }
       router.refresh();
-      router.push(`/${params.storeId}/products`);
+      router.push(`/admin`);
       toast.success(toastMessage);
     } catch (error: any) {
       toast.error("Something went wrong.");
@@ -108,9 +111,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
+      await axios.delete(`/api/products/${params.productId}`);
       router.refresh();
-      router.push(`/${params.storeId}/products`);
+      router.push(`/admin`);
       toast.success("Product deleted.");
     } catch (error: any) {
       toast.error("Something went wrong.");
@@ -181,7 +184,41 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Product name"
+                      placeholder="Room name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Room Type</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Room type"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="roomNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Room Numbers</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter Room Numbers Seprated By Comma ( , )"
                       {...field}
                     />
                   </FormControl>
@@ -221,9 +258,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Archived</FormLabel>
+                    <FormLabel>On Maintainance</FormLabel>
                     <FormDescription>
-                      This product will not appear anywhere in the store.
+                      This room will not appear anywhere in the suite.
                     </FormDescription>
                   </div>
                 </FormItem>

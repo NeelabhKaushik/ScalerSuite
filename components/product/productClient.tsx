@@ -25,7 +25,7 @@ export const ProductsClient: React.FC<ProductsClientProps> = ({ data }) => {
           title={`Rooms (${data.length})`}
           description="Manage rooms and their availability."
         />
-        <Button onClick={() => router.push(`/products/new`)}>
+        <Button onClick={() => router.push(`/admin/product/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Add New
         </Button>
       </div>

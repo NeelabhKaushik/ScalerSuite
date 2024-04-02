@@ -1,7 +1,6 @@
 const Billboard = () => {
   const gradientStyle = {
-    backgroundImage:
-      "linear-gradient(90deg, rgba(85,128,187,1) 20%, rgba(134,139,224,1) 100%)",
+    backgroundImage: "linear-gradient(to top, #88d3ce 0%, #6e45e2 100%)",
   };
 
   return (

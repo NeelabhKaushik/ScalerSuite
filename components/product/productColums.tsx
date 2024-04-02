@@ -7,11 +7,19 @@ export type ProductColumn = {
   id: string;
   name: string;
   isArchived: boolean;
-  category: string;
+  roomNumber: number[];
+  type: string;
   price: string;
-  bookings?: string; // Using the Booking interface here
-  createdAt?: string;
+  bookings?: Booking[]; // Using the Booking interface here
+  createdAt?: Date;
+  images: string[];
 };
+
+export interface Image {
+  id: string;
+  url: string;
+  createdAt: Date;
+}
 
 interface Booking {
   id: string;
@@ -19,6 +27,7 @@ interface Booking {
   quantity: number;
   createdAt: Date;
   bookedFrom: Date;
+  roomNumber: number;
   bookedTo: Date;
   userId: string;
   user?: User;
@@ -35,7 +44,10 @@ export const columns: ColumnDef<ProductColumn>[] = [
     accessorKey: "name",
     header: "Name",
   },
-
+  {
+    accessorKey: "type",
+    header: "Type",
+  },
   {
     accessorKey: "price",
     header: "Price",
@@ -50,8 +62,13 @@ export const columns: ColumnDef<ProductColumn>[] = [
     header: "Date",
   },
   {
+    accessorKey: "roomNumber",
+    header: "Room Numbers",
+  },
+
+  {
     accessorKey: "isArchived",
-    header: "Archived",
+    header: "On Maintainence",
   },
   {
     id: "actions",
