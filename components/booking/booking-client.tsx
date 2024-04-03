@@ -56,7 +56,6 @@ export const BookingClient: React.FC<BookingClientProps> = ({ data }) => {
   }
 
   // Filter by room type
-  console.log(Type);
   if (Type !== null) {
     data = data.filter((item) => item.type === Type);
   }
@@ -84,22 +83,14 @@ export const BookingClient: React.FC<BookingClientProps> = ({ data }) => {
           />
         </div>
         <div className="mr-2 w-[180px]">
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Type A B or C" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="A" onChange={() => setType("A")}>
-                A
-              </SelectItem>
-              <SelectItem value="B" onChange={() => setType("B")}>
-                B
-              </SelectItem>
-              <SelectItem value="C" onChange={() => setType("C")}>
-                C
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <Input
+            className="w-[180px]"
+            type="text"
+            placeholder="Room Type"
+            onChange={(e) => {
+              setType(e.target.value);
+            }}
+          />
         </div>
         <div>
           <Popover>
