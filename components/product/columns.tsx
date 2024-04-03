@@ -49,10 +49,10 @@ export const columns: ColumnDef<ProductColumn>[] = [
     accessorKey: "price",
     header: "Price",
   },
-  {
-    accessorKey: "booking",
-    header: "Bookings",
-  },
+  // {
+  //   accessorKey: "booking",
+  //   header: "Bookings",
+  // },
   {
     accessorKey: "createdAt",
     header: "Created At",
@@ -74,4 +74,3 @@ export const columns: ColumnDef<ProductColumn>[] = [
     cell: ({ row }) => <CellAction data={row.original} />,
   },
 ];
-  
