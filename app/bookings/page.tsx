@@ -15,7 +15,7 @@ export interface BookingColumn {
   bookedFrom: string;
   bookedTo: string;
   createdAt: string;
-  username: string ;
+  username: string;
   email: string;
   guests: number;
   type: string;
@@ -34,7 +34,22 @@ const page = async () => {
       product: true,
     },
   });
-    
+  function calculateHourGap(
+    fromDate: Date | undefined,
+    toDate: Date | undefined
+  ): number {
+    // Calculate the difference in milliseconds between the two dates
+
+    if (!fromDate || !toDate) {
+      return 0;
+    }
+    const timeDifferenceMs: number = toDate.getTime() - fromDate.getTime();
+
+    // Convert milliseconds to hours
+    const hourGap: number = timeDifferenceMs / (1000 * 60 * 60);
+
+    return hourGap;
+  }
 
   const formattedBookings: BookingColumn[] = bookings.map((booking) => ({
     id: booking.id,
@@ -56,7 +71,10 @@ const page = async () => {
     email: booking.user?.email || "",
     type: booking.product?.type || "",
     isCancelled: booking.isCancelled,
-    bookingPrice: booking.product?.price,
+    bookingPrice:
+      booking.product?.price *
+      Math.floor(calculateHourGap(booking.bookedFrom, booking.bookedTo))
+      ,
   }));
   return (
     <div className="flex-col">
