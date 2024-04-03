@@ -27,6 +27,7 @@ interface Booking {
   quantity: number;
   createdAt: Date;
   bookedFrom: Date;
+  guests: number;
   roomNumber: number;
   bookedTo: Date;
   userId: string;

@@ -19,6 +19,7 @@ export interface Image {
 export interface Booking {
   id: string;
   bookedFrom: string;
+  guests: number;
   bookedTo: string;
   roomNumber: number;
   user: User;

@@ -1,30 +1,32 @@
 "use client";
 
-import { Product } from "@/types";
-import React, { useState } from "react";
-import { Button } from "../ui/button";
-import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { Product } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { format, set } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { cn } from "@/lib/utils";
-import { addDays, format } from "date-fns";
-import { FaceIcon } from "@radix-ui/react-icons";
+import { DateRange } from "react-day-picker";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
+import { Button } from "../ui/button";
 import {
+  Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
   FormMessage,
-  Form,
 } from "../ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { DateRange } from "react-day-picker";
 import { Input } from "../ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Select,
   SelectContent,
@@ -32,17 +34,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import Link from "next/link";
-import { TimeField } from "../ui/time-feild";
+import { TimePicker } from "../ui/time-picker";
 
 interface InfoProps {
   data: Product;
 }
-
 const FormSchema = z.object({
-  dates: z.date({
-    required_error: "A checkin and Checkout date is required.",
-  }),
+  dates: z.any(),
   name: z.string().min(1),
   email: z
     .string()
@@ -56,17 +54,78 @@ const FormSchema = z.object({
 
 const Info: React.FC<InfoProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
+    from: new Date(),
   });
+  const [fromTime, setfromTime] = useState({ from: new Date() });
+  const [toTime, settoTime] = useState({ to: new Date() });
+  const fromDate = new Date(date?.from || "");
+  const toDate = new Date(date?.to || "");
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+  const FromTime = fromTime;
+  const ToTime = toTime;
+  const combinedFromDate = new Date(
+    fromDate.getFullYear(),
+    fromDate.getMonth(),
+    fromDate.getDate(),
+    FromTime.from.getHours(),
+    FromTime.from.getMinutes(),
+    FromTime.from.getSeconds(),
+    FromTime.from.getMilliseconds()
+  );
+
+  const combinedToDate = new Date(
+    toDate.getFullYear(),
+    toDate.getMonth(),
+    toDate.getDate(),
+    ToTime.to.getHours(),
+    ToTime.to.getMinutes(),
+    ToTime.to.getSeconds(),
+    ToTime.to.getMilliseconds()
+  );
+  function calculateHourGap(fromDate: Date, toDate: Date): number {
+    const millisecondsPerHour = 1000 * 60 * 60; // Number of milliseconds in an hour
+
+    // Convert both dates to milliseconds
+    const fromTime = fromDate.getTime();
+    const toTime = toDate.getTime();
+
+    // Calculate the difference in milliseconds
+    const timeDifference = Math.abs(toTime - fromTime);
+
+    // Calculate the hour gap
+    const hourGap = Math.floor(timeDifference / millisecondsPerHour);
+
+    return hourGap;
   }
+
+  // Example usage
+  const hourGap = calculateHourGap(combinedFromDate, combinedToDate);
+
+  console.log(date?.from, date?.to);
+  const onSubmit = async (fromData: z.infer<typeof FormSchema>) => {
+    form.setValue("dates", date);
+    const dataToSend = {
+      ...fromData,
+      productId: data.id, // Assuming data contains the product ID
+      dates: date, // Assuming date is in the required format for the server
+    };
+    try {
+      setLoading(true);
+      await axios.post(`/api/bookings`, dataToSend);
+      router.refresh();
+      router.push(`/bookings`);
+      toast.success("Room Booked :)");
+    } catch (error: any) {
+      toast.error("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <div className="md:grid md:grid-cols-1 gap-8">
@@ -109,7 +168,7 @@ const Info: React.FC<InfoProps> = ({ data }) => {
             <FormField
               control={form.control}
               name="dates"
-              render={({ field }) => (
+              render={({ ...field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Pick a Date</FormLabel>
                   <Popover>
@@ -142,9 +201,10 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                         initialFocus
                         mode="range"
                         defaultMonth={date?.from}
+                        onSelect={(selectedDate) => setDate(selectedDate)}
                         selected={date}
-                        onSelect={setDate}
                         numberOfMonths={2}
+                        disabled={(date) => date < new Date()}
                       />
                     </PopoverContent>
                   </Popover>
@@ -162,7 +222,12 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                 <FormItem>
                   <FormLabel>Check In Time</FormLabel>
                   <FormControl>
-                    <TimeField disabled={loading} {...field} />
+                    <TimePicker
+                      disabled={loading}
+                      {...field}
+                      aria-label="from-time"
+                      onChange={() => setfromTime(fromTime)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -175,7 +240,12 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                 <FormItem>
                   <FormLabel>Check Out Time</FormLabel>
                   <FormControl>
-                    <TimeField disabled={loading} {...field} />
+                    <TimePicker
+                      disabled={loading}
+                      {...field}
+                      aria-label="to-time"
+                      onChange={() => settoTime(toTime)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -187,10 +257,13 @@ const Info: React.FC<InfoProps> = ({ data }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Guests</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={"2"}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={"Select Number of Guests"}
+                  >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Number Of guests" />
+                        <SelectValue placeholder="Select Number Of Guests" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -229,9 +302,6 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                           {room}
                         </SelectItem>
                       ))}
-                      <SelectItem value={"500"} key={500} disabled={true}>
-                        {400}
-                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>Room Number </FormDescription>
@@ -239,6 +309,24 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                 </FormItem>
               )}
             />
+            <div className="text-blueGray-500 bg-transparent border border-solid border-blueGray-500 text-lg px-4 py-2 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150">
+              <span>
+                <h2 className="flex flex-col font-bold text-lg ">
+                  Total Bill :{" "}
+                </h2>
+                {hourGap > 0 ? (
+                  <span>
+                    Rs.{data.price}/- per Hour * {hourGap} Hours ={" "}
+                    <span className="font-bold">
+                      Rs.
+                      {data.price * hourGap}
+                    </span>
+                  </span>
+                ) : (
+                  <h2> Rs 0.00/-</h2>
+                )}
+              </span>
+            </div>
             <Button type="submit">Book Now</Button>
           </form>
         </Form>

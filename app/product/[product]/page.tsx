@@ -8,7 +8,7 @@ import Info from "@/components/gallery/info";
 
 interface ProductPageProps {
   params: {
-    productId: string;
+    product: string;
   };
 }
 
@@ -19,15 +19,10 @@ interface ImageType {
 const ProductPage: React.FC<ProductPageProps> = async ({ params }) => {
   const product = await db.product.findFirst({
     where: {
-      id: params.productId,
+      id: params.product,
     },
   });
 
-  const suggestedProducts = await db.product.findFirst({
-    where: {
-      type: product?.type,
-    },
-  });
   const imageObjects: ImageType[] = product
     ? product?.images.map((imageUrl) => ({
         url: imageUrl,
@@ -40,7 +35,9 @@ const ProductPage: React.FC<ProductPageProps> = async ({ params }) => {
         <div className="px-4 py-10 sm:px-6 lg:px-8">
           <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
             {/* Gallery  */}
-            {product && <Gallery images={imageObjects} />}
+            {product && (
+              <Gallery images={imageObjects} price={product?.price} />
+            )}
 
             <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
               {/* Info */}
