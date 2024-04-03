@@ -46,12 +46,14 @@ export const BookingClient: React.FC<BookingClientProps> = ({ data }) => {
   }
 
   // Filter by date range
-  // if (date.from && date.to && date.from.getTime() !== new Date().getTime()) {
-  //   data = data.filter(item => {
-  //       const bookedFrom = new Date(item.bookedFrom);
-  //       return bookedFrom >= date.from && bookedFrom <= date.to;
-  //   });
-  // }
+  if (date?.from && date?.to && date.from?.getTime() !== new Date().getTime()) {
+    data = data.filter((item) => {
+      const bookedFrom = new Date(item.bookedFrom);
+      return (
+        date.from && date.to && bookedFrom >= date.from && bookedFrom <= date.to
+      );
+    });
+  }
 
   // Filter by room type
   console.log(Type);
