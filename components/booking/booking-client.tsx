@@ -71,8 +71,8 @@ export const BookingClient: React.FC<BookingClientProps> = ({ data }) => {
         />
       </div>
       <Separator />
-      <div className="flex mb-1">
-        <div className="mr-2">
+      <div className="flex flex-col mb-1 sm:flex-row sm:w-[50px] sm:grid-cols-2 mr-2">
+        <div className="mb-2 sm:mb-0 sm:mr-2">
           <Input
             className="w-[180px]"
             type="number"
@@ -82,7 +82,7 @@ export const BookingClient: React.FC<BookingClientProps> = ({ data }) => {
             }}
           />
         </div>
-        <div className="mr-2 w-[180px]">
+        <div className="mb-2 sm:mb-0 sm:mr-2 w-[180px] mr-2">
           <Input
             className="w-[180px]"
             type="text"
@@ -92,7 +92,7 @@ export const BookingClient: React.FC<BookingClientProps> = ({ data }) => {
             }}
           />
         </div>
-        <div>
+        <div className="mb-2 sm:mb-0">
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -131,6 +131,7 @@ export const BookingClient: React.FC<BookingClientProps> = ({ data }) => {
           </Popover>
         </div>
       </div>
+
       <DataTable searchKey="roomNumber" columns={columns} data={data} />
     </>
   );
