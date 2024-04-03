@@ -24,25 +24,22 @@ export async function POST(req: Request) {
         status: 400,
       });
     }
+    console.log(body);
 
     const imageURLs = images.map((image: { url: string }) => image.url);
+
     const roomNumbersArray = extractRoomNumbers(roomNumber);
     // Check if a product of this type already exists
-    const existingProduct = await prismadb.product.findFirst({
-      where: {
-        type: type,
-      },
-    });
 
-    if (existingProduct) {
-      return new NextResponse(
-        JSON.stringify({ message: "Product type already exists" }),
-        {
-          status: 400,
-        }
-      );
-    }
-
+    console.log(
+      "deatils are",
+      name,
+      price,
+      isArchived,
+      roomNumbersArray,
+      type,
+      imageURLs
+    );
     const newProduct = await prismadb.product.create({
       data: {
         name: name,
@@ -54,8 +51,8 @@ export async function POST(req: Request) {
       },
     });
 
-
     // Return success response
+    console.log("New product created", newProduct);
     return NextResponse.json(newProduct);
   } catch (error: any) {
     // Handle errors

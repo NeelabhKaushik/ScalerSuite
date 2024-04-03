@@ -1,8 +1,8 @@
 import Container from "@/components/navbar/container";
-import Gallery from "@/components/gallery/gallery";
+import Gallery from "@/components/product/gallery/gallery";
 import { db } from "@/lib/db";
 import React from "react";
-import Info from "@/components/gallery/info";
+import Info from "@/components/product/gallery/info";
 // import { useRouter } from "next/router";
 // import { useRouter } from "next/router";
 
@@ -20,6 +20,9 @@ const ProductPage: React.FC<ProductPageProps> = async ({ params }) => {
   const product = await db.product.findFirst({
     where: {
       id: params.product,
+    },
+    include: {
+      bookings: true, 
     },
   });
 

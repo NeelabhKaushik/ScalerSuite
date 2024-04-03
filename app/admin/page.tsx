@@ -7,7 +7,7 @@ import React from "react";
 const page = async () => {
   const products = await prismadb.product.findMany({
     orderBy: {
-      createdAt: "desc",
+      price: "desc",
     },
   });
 

@@ -15,7 +15,7 @@ import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import {
   Form,
   FormControl,
@@ -24,17 +24,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+} from "../../ui/form";
+import { Input } from "../../ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { TimePicker } from "../ui/time-picker";
+} from "../../ui/select";
+import { TimePicker } from "../../ui/time-picker";
+import { Booking } from "@/types";
 
 interface InfoProps {
   data: Product;
@@ -61,58 +62,100 @@ const Info: React.FC<InfoProps> = ({ data }) => {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(),
   });
-  const [fromTime, setfromTime] = useState({ from: new Date() });
-  const [toTime, settoTime] = useState({ to: new Date() });
-  const fromDate = new Date(date?.from || "");
-  const toDate = new Date(date?.to || "");
+  const [fromtime, setfromtime] = React.useState<string>();
+  const [totime, settoTime] = React.useState<string>();
 
-  const FromTime = fromTime;
-  const ToTime = toTime;
-  const combinedFromDate = new Date(
-    fromDate.getFullYear(),
-    fromDate.getMonth(),
-    fromDate.getDate(),
-    FromTime.from.getHours(),
-    FromTime.from.getMinutes(),
-    FromTime.from.getSeconds(),
-    FromTime.from.getMilliseconds()
-  );
+  const combineDate = (
+    fromTimeString: string | undefined,
+    toTimeString: string | undefined,
+    fromDate: Date | undefined,
+    toDate: Date | undefined
+  ) => {
+    if (!fromTimeString || !toTimeString || !fromDate || !toDate) {
+      return null;
+    }
+    const [fromHours, fromMinutes, fromSeconds] = fromTimeString
+      .split(":")
+      .map(Number);
 
-  const combinedToDate = new Date(
-    toDate.getFullYear(),
-    toDate.getMonth(),
-    toDate.getDate(),
-    ToTime.to.getHours(),
-    ToTime.to.getMinutes(),
-    ToTime.to.getSeconds(),
-    ToTime.to.getMilliseconds()
-  );
-  function calculateHourGap(fromDate: Date, toDate: Date): number {
-    const millisecondsPerHour = 1000 * 60 * 60; // Number of milliseconds in an hour
+    // Parse time strings for to time
+    const [toHours, toMinutes, toSeconds] = toTimeString.split(":").map(Number);
 
-    // Convert both dates to milliseconds
-    const fromTime = fromDate.getTime();
-    const toTime = toDate.getTime();
+    // Combine from date with from time
+    const fromDateWithTime: Date = new Date(fromDate);
+    fromDateWithTime.setHours(fromHours, fromMinutes, fromSeconds);
 
-    // Calculate the difference in milliseconds
-    const timeDifference = Math.abs(toTime - fromTime);
+    // Combine to date with to time
+    const toDateWithTime: Date = new Date(toDate);
+    toDateWithTime.setHours(toHours, toMinutes, toSeconds);
 
-    // Calculate the hour gap
-    const hourGap = Math.floor(timeDifference / millisecondsPerHour);
+    const date: { from: Date; to: Date } = {
+      from: fromDateWithTime,
+      to: toDateWithTime,
+    };
+    return date;
+  };
+
+  function calculateHourGap(
+    fromDate: Date | undefined,
+    toDate: Date | undefined
+  ): number {
+    // Calculate the difference in milliseconds between the two dates
+
+    if (!fromDate || !toDate) {
+      return 0;
+    }
+    const timeDifferenceMs: number = toDate.getTime() - fromDate.getTime();
+
+    // Convert milliseconds to hours
+    const hourGap: number = timeDifferenceMs / (1000 * 60 * 60);
 
     return hourGap;
   }
+  const happy = combineDate(fromtime, totime, date?.from, date?.to);
+  const hourGap = calculateHourGap(happy?.from, happy?.to);
 
-  // Example usage
-  const hourGap = calculateHourGap(combinedFromDate, combinedToDate);
+  function findCoincidingBookings(
+    bookings: Booking[] | undefined,
+    fromTime: Date | undefined,
+    toTime: Date | undefined
+  ) {
+    if (!bookings || !fromTime || !toTime) {
+      return null; // Return null if any of the parameters are undefined
+    }
 
-  console.log(date?.from, date?.to);
+    const coincidingBookings: Booking[] = [];
+
+    bookings.forEach((booking) => {
+      if (booking.isCancelled) return;
+      const bookedFrom = new Date(booking.bookedFrom);
+      const bookedTo = new Date(booking.bookedTo);
+
+      // Check if the booking overlaps with the given time range
+      if (
+        (bookedFrom <= toTime && bookedTo >= fromTime) ||
+        (bookedFrom >= fromTime && bookedFrom <= toTime)
+      ) {
+        coincidingBookings.push(booking);
+      }
+    });
+
+    return coincidingBookings; // Return the array of coinciding bookings
+  }
+
+  const coinsidingBooking = findCoincidingBookings(
+    data.bookings,
+    happy?.from,
+    happy?.to
+  );
+
   const onSubmit = async (fromData: z.infer<typeof FormSchema>) => {
-    form.setValue("dates", date);
+    const happy = combineDate(fromtime, totime, date?.from, date?.to);
     const dataToSend = {
       ...fromData,
-      productId: data.id, // Assuming data contains the product ID
-      dates: date, // Assuming date is in the required format for the server
+      productId: data.id,
+      dates: happy,
+      price: data.price * Math.floor(hourGap),
     };
     try {
       setLoading(true);
@@ -226,7 +269,7 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                       disabled={loading}
                       {...field}
                       aria-label="from-time"
-                      onChange={() => setfromTime(fromTime)}
+                      onChange={(value) => setfromtime(value.toString())}
                     />
                   </FormControl>
                   <FormMessage />
@@ -244,9 +287,15 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                       disabled={loading}
                       {...field}
                       aria-label="to-time"
-                      onChange={() => settoTime(toTime)}
+                      onChange={(value) => settoTime(value.toString())}
                     />
                   </FormControl>
+                  {hourGap < 0 && (
+                    <FormDescription className="text-red-500">
+                      Error: Check-out time cannot be before check-in time.
+                      Adjust your booking details.
+                    </FormDescription>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -298,13 +347,29 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                     </FormControl>
                     <SelectContent>
                       {data.roomNumber.map((room) => (
-                        <SelectItem value={room.toString()} key={room}>
+                        <SelectItem
+                          value={room.toString()}
+                          key={room}
+                          {...(coinsidingBooking?.find(
+                            (booking) => booking.roomNumber === room
+                          ) && { disabled: true })}
+                        >
                           {room}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>Room Number </FormDescription>
+                  {data.roomNumber.map((room) =>
+                    coinsidingBooking?.find(
+                      (booking) => booking.roomNumber === room
+                    ) ? (
+                      <FormDescription key={room}>
+                        Room number {room} is already booked for the selected
+                        dates
+                      </FormDescription>
+                    ) : null
+                  )}
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -316,10 +381,10 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                 </h2>
                 {hourGap > 0 ? (
                   <span>
-                    Rs.{data.price}/- per Hour * {hourGap} Hours ={" "}
+                    Rs.{data.price}/- per Hour * {Math.floor(hourGap)} Hours ={" "}
                     <span className="font-bold">
                       Rs.
-                      {data.price * hourGap}
+                      {data.price * Math.floor(hourGap)}/-
                     </span>
                   </span>
                 ) : (
@@ -327,7 +392,9 @@ const Info: React.FC<InfoProps> = ({ data }) => {
                 )}
               </span>
             </div>
-            <Button type="submit">Book Now</Button>
+            <Button type="submit" disabled={hourGap < 0}>
+              Book Now
+            </Button>
           </form>
         </Form>
       </div>

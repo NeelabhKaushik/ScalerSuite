@@ -12,8 +12,6 @@ export async function DELETE(req: Request) {
 
     console.log(secondToLastPart); // Output: bookings
 
-    // Assuming prismadb is your database connection
-
     const roomDelete = await prismadb.booking.update({
       where: {
         id: secondToLastPart,

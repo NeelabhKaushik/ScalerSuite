@@ -18,11 +18,11 @@ export interface Image {
 
 export interface Booking {
   id: string;
-  bookedFrom: string;
+  bookedFrom: Date;
   guests: number;
-  bookedTo: string;
+  bookedTo: Date;
   roomNumber: number;
-  user: User;
+  isCancelled: boolean;
 }
 
 export interface User {

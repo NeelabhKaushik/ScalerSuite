@@ -1,17 +1,20 @@
 "use client";
 
-import * as z from "zod";
-import axios from "axios";
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import axios from "axios";
+import { Trash } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import { Trash } from "lucide-react";
+import * as z from "zod";
+
 import { Product } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
 
-import { Input } from "@/components/ui/input";
+import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -21,18 +24,27 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
 import { Heading } from "@/components/ui/heading";
-import { AlertModal } from "@/components/modals/alert-modal";
+import ImageUpload from "@/components/ui/image-upload";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "../ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import ImageUpload from "@/components/ui/image-upload";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "../ui/select";
+import { type } from "os";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -52,6 +64,12 @@ interface ProductFormProps {
       })
     | null;
 }
+
+const types = [
+  { label: "A", value: "A" },
+  { label: "B", value: "B" },
+  { label: "C", value: "C" },
+] as const;
 
 export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
   const params = useParams();
@@ -122,6 +140,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
     }
   };
 
+  const getTypeBasedPrice = () => {
+    const type = form.getValues("type");
+    if (type === "A") {
+      return 100;
+    } else if (type === "B") {
+      return 80;
+    } else if (type === "C") {
+      return 50;
+    }
+    return 0;
+  };
+
   return (
     <>
       <AlertModal
@@ -174,36 +204,44 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
             )}
           />
           <div className="md:grid md:grid-cols-3 gap-8">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder="Room name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Room name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Room Type</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Room type"
-                      {...field}
-                    />
-                  </FormControl>
+                  <FormLabel>Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select form type A, B, C" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="A">A</SelectItem>
+                      <SelectItem value="B">B</SelectItem>
+                      <SelectItem value="C">C</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -234,8 +272,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={loading}
-                      placeholder="9.99"
+                      disabled={false}
+                      placeholder={getTypeBasedPrice().toString()} // Assuming `type` is defined somewhere
                       {...field}
                     />
                   </FormControl>
@@ -252,7 +290,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData }) => {
                   <FormControl>
                     <Checkbox
                       checked={field.value}
-                      // @ts-ignore
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>

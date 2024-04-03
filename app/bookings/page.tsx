@@ -18,6 +18,7 @@ export interface BookingColumn {
   username: string ;
   email: string;
   guests: number;
+  type: string;
   bookingPrice: number;
   isCancelled: boolean;
   deletedAt?: Date;
@@ -53,6 +54,7 @@ const page = async () => {
     userId: booking.userId,
     username: booking.user?.name || "",
     email: booking.user?.email || "",
+    type: booking.product?.type || "",
     isCancelled: booking.isCancelled,
     bookingPrice: booking.product?.price,
   }));

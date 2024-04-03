@@ -1,17 +1,20 @@
-const Billboard = () => {
-  const gradientStyle = {
-    backgroundImage: "linear-gradient(to top, #88d3ce 0%, #6e45e2 100%)",
-  };
-
+const Billboard = ({}) => {
+  console;
   return (
     <div className="p-4 sm:p-6 lg:p-8 rounded-xl overflow-hidden">
       <div
-        style={gradientStyle}
-        className="rounded-xl relative aspect-square md:aspect-[2.4/1] overflow-hidden bg-cover"
+        style={{
+          backgroundImage: `url(http://res.cloudinary.com/dm3p24cem/image/upload/v1712123218/billboard-bg-3_msvhvc.png)`,
+        }}
+        className="rounded-xl relative aspect-square md:aspect-[2.4/1] overflow-hidden bg-cover bg-blue-100"
       >
         <div className="h-full w-full flex flex-col justify-center items-center text-center gap-y-8">
           <div className="font-bold text-3xl sm:text-5xl lg:text-6xl sm:max-w-xl max-w-xs">
-            Hotel Suites Powered by Scaler
+            Premium Hotels by{" "}
+            <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+              {" "}
+              Scaler
+            </span>
           </div>
         </div>
       </div>

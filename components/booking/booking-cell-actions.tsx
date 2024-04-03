@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { Copy, Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Copy, Edit, Edit2, MoreHorizontal, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { use, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -52,6 +52,7 @@ export const BookingCellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [emailOpen, setemailOpen] = useState(false);
+  const [dateChange, setDateChange] = useState(false);
   const [type, setType] = useState(false);
   const router = useRouter();
   const params = useParams();
@@ -89,9 +90,9 @@ export const BookingCellAction: React.FC<CellActionProps> = ({ data }) => {
             isOpen={emailOpen}
             onClose={() => setemailOpen(false)}
             type={type}
-            emailAddress= {data.email}
-            username ={data.username}
-            userId = {data.id}
+            emailAddress={data.email}
+            username={data.username}
+            userId={data.id}
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -113,10 +114,10 @@ export const BookingCellAction: React.FC<CellActionProps> = ({ data }) => {
               <DropdownMenuItem
                 onClick={() => {
                   setemailOpen(true);
-                  setType(true);
+                  setDateChange(true);
                 }}
               >
-                <Edit className="mr-2 h-4 w-4" /> Update Email
+                <Edit2 className="mr-2 h-4 w-4" /> Update Email
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setOpen(true)}>
                 <Trash className="mr-2 h-4 w-4" /> Cancel Booking

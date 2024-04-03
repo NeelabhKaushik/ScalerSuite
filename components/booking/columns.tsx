@@ -33,6 +33,7 @@ export interface BookingColumn {
   createdAt: string;
   guests: number;
   isCancelled: boolean;
+  type: string;
   username: string;
   email: string;
   bookingPrice: number;
