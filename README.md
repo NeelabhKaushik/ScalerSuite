@@ -37,7 +37,3 @@ npm start
 ## Extra's
 
 - [x] Admin page to view and manage listings
-
-# Please Hire Me :)
-
-Contact me at E21CSEU0007@bennett.edu.in || +91 9672875356
